@@ -178,7 +178,7 @@ pip freeze > requirements.txt
 **Prince Eugene Ofosu**
 Biomedical Scientist & Software Developer
 📧 [pcosby50@gmail.com](mailto:pcosby50@gmail.com)
-🔗 GitHub: [@pcosby5](https://github.com/pcosby5)
+🔗 GitHub: [@pcosby5](https://github.com/Pcosby5)
 
 ---
 
