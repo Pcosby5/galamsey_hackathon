@@ -31,10 +31,11 @@ st.markdown("""
 </nav>
 """, unsafe_allow_html=True)
 
+# Introduction
 st.markdown("""
 ### ✍️ Introduction
 
-I embarked on this project to examine how illegal mining, commonly called *galamsey* in Ghana, impacts the quality of river water in Ghana. The presence of heavy metals like **Arsenic**, **Lead**, **Cadmium**, and **Chromium** is of particular concern, given their toxicity to both humans and aquatic life.
+I embarked on this project to examine how illegal mining, commonly called *galamsey* in Ghana, impacts the quality of river water. The presence of heavy metals like **Arsenic**, **Lead**, **Cadmium**, and **Chromium** is of particular concern, given their toxicity to both humans and aquatic life.
 
 ---
 
@@ -59,19 +60,16 @@ I used sample data from several river sources. For each sample, the dataset cont
 I applied:
 
 - Descriptive statistics
-- Visual exploration (bar plots, heatmaps, histograms)
+- Visual exploration (bar plots, histograms, KDE)
 - K-Means clustering
 - HPI calculation
 
 ---
 
-### ⚠️ Heavy Metal Concentration Levels
-
-Below is the distribution of each heavy metal across the sampled sites.
-
+### ⚠️ Heavy Metal Concentration Levels by Sample
 """)
 
-# Plotting the heavy metal concentrations in river samples
+# Bar plot (concentration levels per sample)
 sns.set(style="whitegrid")
 plt.figure(figsize=(12, 6))
 sns.barplot(data=melted_df, x="Sample", y="Concentration", hue="Metal")
@@ -81,18 +79,42 @@ plt.xlabel("River Sample")
 plt.xticks(rotation=45)
 plt.legend(title="Metal")
 plt.tight_layout()
-
-# Image is already saved, so simply display it
+plt.savefig("visuals/heavy_metal_concentrations.png")
 st.image("visuals/heavy_metal_concentrations.png")
 
+# Distribution
 st.markdown("""
-Upon reviewing the bar plot, I noticed that **Chromium** showed the widest variation, with some samples showing dangerously high concentrations. **Cadmium**, on the other hand, was barely present, yet still concerning due to its toxic nature at even low levels.
+---
+
+### 📈 Distribution of Heavy Metals Across All Samples
+
+While the bar plot gives a snapshot of how each river sample fares in terms of metal levels, it's also important to look at **how concentrations of each metal are distributed overall**.
+""")
+
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+metals = ["Arsenic (mg/L)", "Cadmium (mg/L)", "Chromium (mg/L)", "Lead (mg/L)"]
+
+for ax, metal in zip(axes.flatten(), metals):
+    sns.histplot(df[metal], kde=True, bins=10, ax=ax, color="skyblue", edgecolor="black")
+    ax.set_title(f'Distribution of {metal}')
+    ax.set_xlabel("Concentration (mg/L)")
+    ax.set_ylabel("Frequency")
+
+plt.tight_layout()
+st.pyplot(fig)
+
+st.markdown("""
+#### 📌 Discussion
+
+- **Arsenic** and **Cadmium** are mostly low in concentration but have rare spikes.
+- **Chromium** shows a wide range — some samples are extremely polluted.
+- **Lead** presents two clusters — indicating two sets of river samples: mildly and highly contaminated.
+
+These distributions show **how widespread and inconsistent** the pollution is — a red flag for public health monitoring.
 
 ---
 
 ### 📏 Exceeding WHO Standards
-
-Here’s how the sampled rivers fared compared to WHO safe drinking water standards:
 """)
 
 # WHO limits for heavy metals
@@ -103,19 +125,17 @@ who_limits = {
     'Lead (mg/L)': 0.01
 }
 
-# Exceedance table
+# Check for exceedances
 for metal, limit in who_limits.items():
     df[f'{metal} Exceeds'] = df[metal] > limit
 st.dataframe(df[["Sample"] + [f"{metal} Exceeds" for metal in who_limits]])
 
 st.markdown("""
-I found that many of the rivers had at least one metal exceeding WHO limits with **Chromium** and **Lead** being the most frequent offenders.
+Many rivers had at least one metal exceeding WHO limits — particularly **Chromium** and **Lead**, which were consistently high in some samples.
 
 ---
 
 ### 🧠 Correlation Insights
-
-The heatmap below reveals how different water quality parameters are related.
 """)
 
 # Correlation heatmap
@@ -125,17 +145,16 @@ sns.heatmap(correlation, annot=True, cmap="coolwarm", ax=ax)
 st.pyplot(fig)
 
 st.markdown("""
-It became evident that **TDS** and **Conductivity** were strongly correlated as expected since they both reflect dissolved solids. Similarly, **Total Hardness** correlated well with both calcium and magnesium hardness.
+**TDS** and **Conductivity** had the strongest correlation — as expected. Calcium and magnesium also closely follow hardness levels. These insights validate the integrity of the dataset.
 
 ---
 
 ### 🎯 K-Means Clustering
 
-To better understand contamination levels, I grouped the river samples into clusters based on their metal concentrations.
-
+Clustering river samples by metal content to identify risk categories.
 """)
 
-# Clustering
+# KMeans clustering
 features = df[list(who_limits.keys())]
 scaled = StandardScaler().fit_transform(features)
 kmeans = KMeans(n_clusters=3, random_state=0)
@@ -150,19 +169,18 @@ ax.set_title("Cadmium vs Chromium Clustering")
 st.pyplot(fig)
 
 st.markdown("""
-The clustering helped me identify samples with **extremely high metal content**, separating them clearly from cleaner water samples. One cluster in particular grouped the most polluted rivers suggesting they require urgent intervention.
+Clustering identified a group of highly polluted samples — visually separating them from relatively safer ones. This helps prioritize which rivers need **urgent attention**.
 
 ---
 
 ### 🧮 Health Pollution Index (HPI)
 
-I computed a Health Pollution Index by comparing each metal to its permissible limit and scoring the relative risk:
-
+A composite risk index using WHO limits to assess each sample.
 """)
 
-# HPI calculation
 for metal, limit in who_limits.items():
     df[f'{metal} Qi'] = (df[metal] / limit) * 100
+
 qi_columns = [f'{metal} Qi' for metal in who_limits]
 df['HPI'] = df[qi_columns].mean(axis=1)
 
@@ -175,28 +193,27 @@ def get_risk(hpi):
         return "High"
 
 df['Risk Category'] = df['HPI'].apply(get_risk)
-
 st.dataframe(df[["Sample", "HPI", "Risk Category"]])
 
 st.markdown("""
-I considered any **HPI > 100** as high risk. Several samples crossed this threshold, making them unsafe for consumption or use without treatment.
+Samples with **HPI > 100** are marked as high risk. These rivers are **not safe** for domestic use without immediate intervention.
 
 ---
 
 ### 🛡️ What Can Be Done?
 
-Illegal mining is a complex socio-economic issue, but I believe the following can help reduce its environmental toll:
+To mitigate the effects of illegal mining on rivers:
 
-- **Enforce stricter regulations** and real-time monitoring.
-- **Install affordable water treatment systems** in affected communities.
-- **Create awareness campaigns** about the health dangers of contaminated water.
-- **Reclaim and reforest** degraded mining zones.
+- Enforce **stricter mining regulations** and conduct **real-time monitoring**.
+- Provide **low-cost water treatment solutions** to rural communities.
+- Launch **education campaigns** about water safety and pollution.
+- Reclaim degraded land through **reforestation and rehabilitation**.
 
 ---
 
 ### 🧾 Conclusion
 
-This analysis confirmed my suspicions that illegal mining is **heavily contaminating rivers**, with **Chromium** and **Lead** posing the greatest risk. Without immediate action, communities depending on these rivers may suffer long-term health consequences.
+The data confirms that **illegal mining is a major contributor** to heavy metal pollution in Ghanaian rivers. Without proper intervention, **Chromium** and **Lead** levels will continue to pose a serious public health threat.
 
 ---
 
