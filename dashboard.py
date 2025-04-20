@@ -131,7 +131,7 @@ for metal, limit in who_limits.items():
 st.dataframe(df[["Sample"] + [f"{metal} Exceeds" for metal in who_limits]])
 
 st.markdown("""
-Many rivers had at least one metal exceeding WHO limits — particularly **Chromium** and **Lead**, which were consistently high in some samples.
+Many rivers had at least one metal exceeding WHO limits. This is a concern for public health. It's worth noting that **Arsenic** and **Cadmium** were not consistently high in any sample, but particularly **Chromium** and **Lead**, which were consistently high in some samples.
 
 ---
 
@@ -145,7 +145,7 @@ sns.heatmap(correlation, annot=True, cmap="coolwarm", ax=ax)
 st.pyplot(fig)
 
 st.markdown("""
-**TDS** and **Conductivity** had the strongest correlation — as expected. Calcium and magnesium also closely follow hardness levels. These insights validate the integrity of the dataset.
+**TDS** and **Conductivity** had the strongest correlation with heavy metals. This makes sense because they both measure water quality. **Hardness** is also correlated, but it's not as strong as expected. Calcium and magnesium also closely follow hardness levels. These insights validate the integrity of the dataset.
 
 ---
 
