@@ -1,26 +1,28 @@
-import streamlit as st
+import os
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
+import streamlit as st
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Heavy Metal Contamination Blog", layout="wide")
+# Ensure visuals directory exists
+os.makedirs("visuals", exist_ok=True)
 
-# Load dataset
+# Load your Excel file
 df = pd.read_excel("DATASET_v0.1.xlsx", sheet_name="Data Sheet")
+
+# Rename columns
 df.columns = [
     "Sample", "Arsenic (mg/L)", "Cadmium (mg/L)", "Chromium (mg/L)", "Lead (mg/L)",
     "pH", "TDS (mg/L)", "Conductivity (µS/cm)", "Total Hardness (mg/L)",
     "Calcium Hardness (mg/L)", "Magnesium Hardness (mg/L)"
 ]
 
-who_limits = {
-    'Arsenic (mg/L)': 0.01,
-    'Cadmium (mg/L)': 0.003,
-    'Chromium (mg/L)': 0.05,
-    'Lead (mg/L)': 0.01
-}
+# Melt the DataFrame for plotting
+melted_df = df.melt(id_vars="Sample", value_vars=[
+    "Arsenic (mg/L)", "Cadmium (mg/L)", "Chromium (mg/L)", "Lead (mg/L)"
+], var_name="Metal", value_name="Concentration")
 
 # Navigation bar
 st.markdown("""
@@ -69,16 +71,22 @@ Below is the distribution of each heavy metal across the sampled sites.
 
 """)
 
-# Distribution plots
-heavy_metals = list(who_limits.keys())
-fig, axes = plt.subplots(1, 4, figsize=(20, 5))
-for i, metal in enumerate(heavy_metals):
-    sns.histplot(df[metal], kde=True, color="tomato", ax=axes[i])
-    axes[i].set_title(metal)
-st.pyplot(fig)
+# Plotting the heavy metal concentrations in river samples
+sns.set(style="whitegrid")
+plt.figure(figsize=(12, 6))
+sns.barplot(data=melted_df, x="Sample", y="Concentration", hue="Metal")
+plt.title("Heavy Metal Concentration Levels in River Samples (mg/L)")
+plt.ylabel("Concentration (mg/L)")
+plt.xlabel("River Sample")
+plt.xticks(rotation=45)
+plt.legend(title="Metal")
+plt.tight_layout()
+
+# Image is already saved, so simply display it
+st.image("visuals/heavy_metal_concentrations.png")
 
 st.markdown("""
-Upon reviewing the histograms, I noticed that **Chromium** showed the widest variation, with some samples showing dangerously high concentrations. **Cadmium**, on the other hand, was barely present, yet still concerning due to its toxic nature at even low levels.
+Upon reviewing the bar plot, I noticed that **Chromium** showed the widest variation, with some samples showing dangerously high concentrations. **Cadmium**, on the other hand, was barely present, yet still concerning due to its toxic nature at even low levels.
 
 ---
 
@@ -86,6 +94,14 @@ Upon reviewing the histograms, I noticed that **Chromium** showed the widest var
 
 Here’s how the sampled rivers fared compared to WHO safe drinking water standards:
 """)
+
+# WHO limits for heavy metals
+who_limits = {
+    'Arsenic (mg/L)': 0.01,
+    'Cadmium (mg/L)': 0.003,
+    'Chromium (mg/L)': 0.05,
+    'Lead (mg/L)': 0.01
+}
 
 # Exceedance table
 for metal, limit in who_limits.items():
@@ -180,7 +196,7 @@ Illegal mining is a complex socio-economic issue, but I believe the following ca
 
 ### 🧾 Conclusion
 
-This analysis confirmed my suspicions — illegal mining is **heavily contaminating rivers**, with **Chromium** and **Lead** posing the greatest risk. Without immediate action, communities depending on these rivers may suffer long-term health consequences.
+This analysis confirmed my suspicions that illegal mining is **heavily contaminating rivers**, with **Chromium** and **Lead** posing the greatest risk. Without immediate action, communities depending on these rivers may suffer long-term health consequences.
 
 ---
 
