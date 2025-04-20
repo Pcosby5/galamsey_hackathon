@@ -107,10 +107,10 @@ st.markdown("""
 #### 📌 Discussion
 
 - **Arsenic** and **Cadmium** are mostly low in concentration but have rare spikes.
-- **Chromium** shows a wide range — some samples are extremely polluted.
-- **Lead** presents two clusters — indicating two sets of river samples: mildly and highly contaminated.
+- **Chromium** shows a wide range of concentrations, with some samples being extremely polluted.
+- **Lead** presents two clusters, indicating two sets of river samples: mildly and highly contaminated.
 
-These distributions show **how widespread and inconsistent** the pollution is — a red flag for public health monitoring.
+These distributions show **how widespread and inconsistent** the pollution is. This is a red flag for public health monitoring.
 
 ---
 
@@ -169,7 +169,7 @@ ax.set_title("Cadmium vs Chromium Clustering")
 st.pyplot(fig)
 
 st.markdown("""
-Clustering identified a group of highly polluted samples — visually separating them from relatively safer ones. This helps prioritize which rivers need **urgent attention**.
+Clustering identified a group of highly polluted samples, visually separating them from relatively safer ones. This helps prioritize which rivers need **urgent attention**.
 
 ---
 
