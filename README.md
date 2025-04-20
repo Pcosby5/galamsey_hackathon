@@ -55,67 +55,141 @@ The dashboard uses an Excel file named `DATASET_v0.1.xlsx` with a sheet titled `
 git clone https://github.com/your-username/heavy-metal-dashboard.git
 cd heavy-metal-dashboard
 
-💬 Discussion & Impact
-The dashboard reveals that certain river sources are contaminated well beyond WHO's acceptable limits—especially for Chromium and Lead. By combining clustering and correlation analyses with visualizations, it empowers users to:
+## 2. Install Dependencies
 
-Identify high-risk zones
+Using a virtual environment is recommended:
 
-Understand pollution patterns
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-Advocate for environmental health interventions
+If `requirements.txt` is not provided, install dependencies manually:
 
-Illegal mining (galamsey) has contributed significantly to this degradation, making this tool vital for:
+```bash
+pip install streamlit pandas seaborn matplotlib scikit-learn openpyxl
+```
 
-Policymakers
+---
 
-Scientists & Environmental Analysts
+## 3. Add Your Dataset
 
-Local communities
+Ensure `DATASET_v0.1.xlsx` is in the project root with the correct structure.
 
-NGOs & Advocacy groups
+---
 
-🛡️ Recommendations
+## 4. Run the Dashboard
+
+```bash
+streamlit run dashboard.py
+```
+
+---
+
+## 🧮 Health Pollution Index (HPI)
+
+To assess health risk from heavy metals, the dashboard calculates:
+
+```
+Qi = (Observed Concentration / WHO Limit) * 100
+HPI = Average of all Qi scores
+```
+
+### Risk Categories:
+
+| HPI Score | Risk Level |
+|-----------|------------|
+| 0–50      | Low        |
+| 51–100    | Medium     |
+| >100      | High       |
+
+This approach helps visualize and quantify the cumulative health threat posed by heavy metal contamination in each sample.
+
+---
+
+## 💬 Discussion & Impact
+
+The dashboard reveals that certain river sources are contaminated well beyond WHO's acceptable limits—especially for **Chromium and Lead**. By combining clustering and correlation analyses with visualizations, it empowers users to:
+
+- Identify high-risk zones
+- Understand pollution patterns
+- Advocate for environmental health interventions
+
+**Illegal mining (galamsey)** has contributed significantly to this degradation, making this tool vital for:
+
+- Policymakers
+- Scientists & Environmental Analysts
+- Local communities
+- NGOs & Advocacy groups
+
+---
+
+## 🛡️ Recommendations
+
 Based on insights from the analysis, we recommend:
 
-Real-time water monitoring systems to detect illegal discharges
+- Real-time water monitoring systems to detect illegal discharges
+- Reforestation and land reclamation projects in affected areas
+- Public education campaigns on the dangers of consuming contaminated water
+- Provision of water purification kits or boreholes for safe drinking
+- Strict enforcement of mining regulations and sustainable mining alternatives
 
-Reforestation and land reclamation projects in affected areas
+---
 
-Public education campaigns on the dangers of consuming contaminated water
+## 🧠 Behind the Dashboard: `dashboard.py`
 
-Provision of water purification kits or boreholes for safe drinking
-
-Strict enforcement of mining regulations and sustainable mining alternatives
-
-🧠 Behind the Dashboard: dashboard.py
 The logic includes:
 
-Loading and renaming Excel columns
-
-Bar plots and histograms using Seaborn and Matplotlib
-
-Threshold logic against WHO safety values
-
-Correlation heatmap via Seaborn
-
-K-Means clustering using sklearn
-
-HPI computation and health classification
+- Loading and renaming Excel columns
+- Bar plots and histograms using Seaborn and Matplotlib
+- Threshold logic against WHO safety values
+- Correlation heatmap via Seaborn
+- K-Means clustering using `sklearn`
+- HPI computation and health classification
 
 This structure makes the dashboard adaptable to similar public health or environmental datasets.
 
-✍️ Author
-Prince Eugene Ofosu
+---
+
+## 📄 Requirements
+
+You can create a `requirements.txt` with the following:
+
+```
+streamlit
+pandas
+matplotlib
+seaborn
+scikit-learn
+openpyxl
+```
+
+To generate it manually, run:
+
+```bash
+pip freeze > requirements.txt
+```
+
+---
+
+## ✍️ Author
+
+**Prince Eugene Ofosu**
 Biomedical Scientist & Software Developer
-📧 pcosby50@gmail.com
-🔗 GitHub: @pcosby5
+📧 [pcosby50@gmail.com](mailto:pcosby50@gmail.com)
+🔗 GitHub: [@pcosby5](https://github.com/pcosby5)
 
-📄 License
-This project is licensed under the MIT License.
+---
 
-🙌 Acknowledgements
-World Health Organization (WHO) for health standards
+## 📄 License
 
-Streamlit, Pandas, Scikit-learn, Seaborn & Matplotlib for tools
+This project is licensed under the **MIT License**.
 
-Ghana’s local communities facing the effects of illegal mining
+---
+
+## 🙌 Acknowledgements
+
+- **World Health Organization (WHO)** for health standards
+- **Streamlit, Pandas, Scikit-learn, Seaborn & Matplotlib** for data science tools
+- **Ghana’s local communities** facing the effects of illegal mining
