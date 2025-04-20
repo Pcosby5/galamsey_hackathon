@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import os
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
 
 # Load dataset
 df = pd.read_excel("DATASET_v0.1.xlsx", sheet_name="Data Sheet")
@@ -12,7 +13,6 @@ df.columns = [
     "Calcium Hardness (mg/L)", "Magnesium Hardness (mg/L)"
 ]
 
-# WHO limits
 who_limits = {
     'Arsenic (mg/L)': 0.01,
     'Cadmium (mg/L)': 0.003,
@@ -20,132 +20,126 @@ who_limits = {
     'Lead (mg/L)': 0.01
 }
 
-# Sidebar navigation
-st.sidebar.title("Table of Contents")
-section = st.sidebar.radio("Go to Section:", [
-    "Introduction", "Methodology", "Correlation Heatmap",
-    "Heavy Metal Distribution", "Exceeding WHO Limits",
-    "Clustering", "HPI & Risk Levels", "Solutions", "Conclusion"
-])
+# --- ARTICLE STYLE CONTENT ---
 
-# 1. INTRODUCTION
-if section == "Introduction":
-    st.title("Environmental Impact of Illegal Mining in Ghana")
-    st.markdown("""
-    This dashboard presents a detailed analysis of water pollution due to illegal mining activities,
-    particularly focusing on heavy metal contamination in river samples.
-    Using data analytics and visualization, we explore contamination levels, risk categories,
-    and offer recommendations for mitigating environmental damage.
-    """)
+st.title("Analyzing Heavy Metal Contamination in River Samples from Illegal Mining Areas")
+st.markdown("""
+Illegal mining activities, commonly referred to as *galamsey*, have led to the widespread contamination of water bodies in Ghana. This article-style dashboard explores the presence of heavy metals in river water and the potential health and environmental risks they pose. All analyses are based on real field data and aligned with WHO guidelines.
+""")
 
-# 2. METHODOLOGY
-elif section == "Methodology":
-    st.header("Methodology")
-    st.markdown("""
-    - **Data Source**: Field measurements from affected rivers.
-    - **Metrics Analyzed**: Heavy metals (As, Cd, Cr, Pb), pH, TDS, hardness, etc.
-    - **Tools Used**: Python, Pandas, Seaborn, Scikit-learn.
-    - **Analysis Techniques**:
-        - Correlation heatmaps
-        - Clustering using K-Means
-        - Health Pollution Index (HPI)
-        - Risk categorization based on WHO guidelines
-    """)
+# INTRODUCTION
+st.header("Introduction")
+st.markdown("""
+Mining, though economically beneficial, can lead to significant environmental damage when done illegally. Rivers near mining zones are often exposed to heavy metals such as **Arsenic, Lead, Cadmium**, and **Chromium**, which can severely affect human and aquatic life.
 
-# 3. CORRELATION HEATMAP
-elif section == "Correlation Heatmap":
-    st.header("Correlation Heatmap")
-    correlation = df.corr(numeric_only=True)
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(correlation, annot=True, cmap="coolwarm", ax=ax)
-    st.pyplot(fig)
+This report examines:
+- The concentration levels of heavy metals
+- Whether they exceed WHO permissible limits
+- Clustering patterns of contamination
+- Health Pollution Index (HPI)
+- Proposed mitigation strategies
+""")
 
-# 4. HEAVY METAL DISTRIBUTION
-elif section == "Heavy Metal Distribution":
-    st.header("Heavy Metal Concentration Distribution")
-    st.markdown("Figure below shows the distribution of Arsenic, Cadmium, Lead, and Chromium.")
+# METHODOLOGY
+st.header("Methodology")
+st.markdown("""
+Data was collected from multiple river sources in mining areas. Each sample was tested for several parameters including:
+- **Heavy metals**: Arsenic, Cadmium, Chromium, Lead
+- **Water quality**: pH, TDS, Hardness
 
-    heavy_metals = ["Arsenic (mg/L)", "Cadmium (mg/L)", "Lead (mg/L)", "Chromium (mg/L)"]
-    fig, axes = plt.subplots(1, 4, figsize=(20, 5))
-    for i, metal in enumerate(heavy_metals):
-        sns.histplot(df[metal], kde=True, color="tomato", ax=axes[i])
-        axes[i].set_title(f"{metal}")
-    st.pyplot(fig)
+We applied:
+- **Descriptive analytics**
+- **KMeans clustering**
+- **HPI scoring system**
+- **Visual exploration** using histograms and heatmaps
+""")
 
-# 5. EXCEEDING WHO LIMITS
-elif section == "Exceeding WHO Limits":
-    st.header("Heavy Metals Exceeding WHO Permissible Limits")
-    for metal, limit in who_limits.items():
-        df[f'{metal} Exceeds'] = df[metal] > limit
-    st.dataframe(df[["Sample"] + [f"{metal} Exceeds" for metal in who_limits.keys()]])
-    st.markdown("Red indicates samples where heavy metal levels **exceed** WHO permissible limits.")
+# HEAVY METAL DISTRIBUTION
+st.header("Heavy Metal Concentration Distribution")
 
-# 6. CLUSTERING
-elif section == "Clustering":
-    st.header("Pollution Clustering Based on Heavy Metals")
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.cluster import KMeans
+st.markdown("Below is the distribution of key heavy metals across the sampled sites:")
 
-    features = df[list(who_limits.keys())]
-    scaler = StandardScaler()
-    scaled = scaler.fit_transform(features)
-    kmeans = KMeans(n_clusters=3, random_state=0)
-    df['Cluster'] = kmeans.fit_predict(scaled)
+heavy_metals = ["Arsenic (mg/L)", "Cadmium (mg/L)", "Lead (mg/L)", "Chromium (mg/L)"]
+fig, axes = plt.subplots(1, 4, figsize=(20, 5))
+for i, metal in enumerate(heavy_metals):
+    sns.histplot(df[metal], kde=True, color="tomato", ax=axes[i])
+    axes[i].set_title(metal)
+st.pyplot(fig)
 
-    fig, ax = plt.subplots()
-    sns.scatterplot(
-        x='Arsenic (mg/L)', y='Lead (mg/L)', hue='Cluster', palette='Set2', data=df, ax=ax, s=100
-    )
-    ax.set_title("River Clusters Based on Arsenic and Lead Levels")
-    st.pyplot(fig)
+# WHO LIMIT EXCEEDANCE
+st.header("Exceeding WHO Permissible Limits")
+st.markdown("This table shows which samples exceed WHO limits:")
 
-# 7. HPI & RISK
-elif section == "HPI & Risk Levels":
-    st.header("Health Pollution Index (HPI) and Risk Categorization")
+for metal, limit in who_limits.items():
+    df[f'{metal} Exceeds'] = df[metal] > limit
 
-    for metal, limit in who_limits.items():
-        df[f'{metal} Qi'] = (df[metal] / limit) * 100
+st.dataframe(df[["Sample"] + [f"{metal} Exceeds" for metal in who_limits.keys()]])
 
-    qi_columns = [f'{metal} Qi' for metal in who_limits.keys()]
-    df['HPI'] = df[qi_columns].mean(axis=1)
+# CORRELATION HEATMAP
+st.header("Correlation Between Water Quality Parameters")
+correlation = df.corr(numeric_only=True)
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.heatmap(correlation, annot=True, cmap="coolwarm", ax=ax)
+st.pyplot(fig)
 
-    def get_risk(hpi):
-        if hpi <= 50:
-            return "Low"
-        elif hpi <= 100:
-            return "Medium"
-        else:
-            return "High"
+# CLUSTERING
+st.header("Clustering of Samples Based on Metal Concentration")
+features = df[list(who_limits.keys())]
+scaled = StandardScaler().fit_transform(features)
+kmeans = KMeans(n_clusters=3, random_state=0)
+df['Cluster'] = kmeans.fit_predict(scaled)
 
-    df['Risk Category'] = df['HPI'].apply(get_risk)
+fig, ax = plt.subplots()
+sns.scatterplot(
+    x='Cadmium (mg/L)', y='Chromium (mg/L)', hue='Cluster', palette='Set2', data=df, ax=ax, s=100
+)
+ax.set_title("Cadmium vs Chromium Clustering")
+st.pyplot(fig)
 
-    st.dataframe(df[["Sample", "HPI", "Risk Category"]])
-    st.markdown("""
-    - **Low**: Safe for use
-    - **Medium**: Caution advised
-    - **High**: Potential health hazard
-    """)
+# HPI & RISK ASSESSMENT
+st.header("Health Pollution Index (HPI) and Risk Levels")
 
-# 8. SOLUTIONS
-elif section == "Solutions":
-    st.header("Proposed Solutions to Mitigate Environmental Damage")
-    st.markdown("""
-    - **Strict enforcement** of anti-galamsey regulations.
-    - **Water treatment interventions** in affected communities.
-    - **Public education** campaigns to raise awareness.
-    - **Real-time water quality monitoring** using sensors and dashboards.
-    - **Reforestation and land restoration** around mining areas.
-    """)
+for metal, limit in who_limits.items():
+    df[f'{metal} Qi'] = (df[metal] / limit) * 100
 
-# 9. CONCLUSION
-elif section == "Conclusion":
-    st.header("Conclusion")
-    st.markdown("""
-    This analysis highlights the critical levels of pollution present in river samples from illegal mining areas.
-    Chromium and Lead pose significant concerns, often exceeding WHO standards.
+qi_columns = [f'{metal} Qi' for metal in who_limits.keys()]
+df['HPI'] = df[qi_columns].mean(axis=1)
 
-    By combining data science with environmental awareness, we can identify at-risk areas and propose sustainable solutions.
-    """)
+def get_risk(hpi):
+    if hpi <= 50:
+        return "Low"
+    elif hpi <= 100:
+        return "Medium"
+    else:
+        return "High"
 
-    st.markdown("**Prepared by:** Prince Eugene Ofosu | [GitHub](https://github.com/pcosby)")
+df['Risk Category'] = df['HPI'].apply(get_risk)
 
+st.dataframe(df[["Sample", "HPI", "Risk Category"]])
+
+st.markdown("""
+- **Low**: Water is relatively safe
+- **Medium**: Water may cause harm over time
+- **High**: Water is highly contaminated
+""")
+
+# SOLUTIONS
+st.header("Mitigation Strategies")
+st.markdown("""
+To tackle the environmental damage caused by illegal mining:
+- **Strengthen enforcement** of environmental laws
+- **Implement real-time water monitoring systems**
+- **Educate communities** on the impact of illegal mining
+- **Encourage sustainable mining practices**
+- **Restore vegetation and natural water flow paths**
+""")
+
+# CONCLUSION
+st.header("Conclusion")
+st.markdown("""
+This analysis reveals that many water samples contain heavy metals beyond safe limits, particularly **Chromium** and **Lead**. Immediate actions are needed to control pollution, protect lives, and restore affected ecosystems.
+
+---
+**Prepared by:** Prince Eugene Ofosu
+**GitHub:** [@pcosby](https://github.com/pcosby)
+""")
