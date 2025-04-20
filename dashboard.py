@@ -32,7 +32,7 @@ st.markdown("""
 st.markdown("""
 ### ✍️ Introduction
 
-I embarked on this project to examine how illegal mining — commonly called *galamsey* — impacts the quality of river water in Ghana. The presence of heavy metals like **Arsenic**, **Lead**, **Cadmium**, and **Chromium** is of particular concern, given their toxicity to both humans and aquatic life.
+I embarked on this project to examine how illegal mining, commonly called *galamsey* in Ghana, impacts the quality of river water in Ghana. The presence of heavy metals like **Arsenic**, **Lead**, **Cadmium**, and **Chromium** is of particular concern, given their toxicity to both humans and aquatic life.
 
 ---
 
@@ -93,7 +93,7 @@ for metal, limit in who_limits.items():
 st.dataframe(df[["Sample"] + [f"{metal} Exceeds" for metal in who_limits]])
 
 st.markdown("""
-I found that many of the rivers had at least one metal exceeding WHO limits — with **Chromium** and **Lead** being the most frequent offenders.
+I found that many of the rivers had at least one metal exceeding WHO limits with **Chromium** and **Lead** being the most frequent offenders.
 
 ---
 
@@ -109,7 +109,7 @@ sns.heatmap(correlation, annot=True, cmap="coolwarm", ax=ax)
 st.pyplot(fig)
 
 st.markdown("""
-It became evident that **TDS** and **Conductivity** were strongly correlated — as expected since they both reflect dissolved solids. Similarly, **Total Hardness** correlated well with both calcium and magnesium hardness.
+It became evident that **TDS** and **Conductivity** were strongly correlated as expected since they both reflect dissolved solids. Similarly, **Total Hardness** correlated well with both calcium and magnesium hardness.
 
 ---
 
@@ -134,7 +134,7 @@ ax.set_title("Cadmium vs Chromium Clustering")
 st.pyplot(fig)
 
 st.markdown("""
-The clustering helped me identify samples with **extremely high metal content**, separating them clearly from cleaner water samples. One cluster in particular grouped the most polluted rivers — suggesting they require urgent intervention.
+The clustering helped me identify samples with **extremely high metal content**, separating them clearly from cleaner water samples. One cluster in particular grouped the most polluted rivers suggesting they require urgent intervention.
 
 ---
 
@@ -163,7 +163,7 @@ df['Risk Category'] = df['HPI'].apply(get_risk)
 st.dataframe(df[["Sample", "HPI", "Risk Category"]])
 
 st.markdown("""
-I considered any **HPI > 100** as high risk. Several samples crossed this threshold — making them unsafe for consumption or use without treatment.
+I considered any **HPI > 100** as high risk. Several samples crossed this threshold, making them unsafe for consumption or use without treatment.
 
 ---
 
